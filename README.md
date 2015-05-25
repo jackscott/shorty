@@ -1,6 +1,6 @@
 # shorty
 
-FIXME
+A simple Compojure based URL shortening service.
 
 ## Prerequisites
 
@@ -16,4 +16,4 @@ To start a web server for the application, run:
 
 ## License
 
-Copyright © 2015 FIXME
+Copyright © 2015 Jack Scott <code@jackscott.name>
