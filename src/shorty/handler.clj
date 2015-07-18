@@ -1,17 +1,16 @@
 (ns shorty.handler
+  (:import [clojure.lang Murmur3]
+           [org.apache.commons.validator.routines UrlValidator])
+
   (:require [compojure.core :refer :all]
             [compojure.route :as route]
             [ring.middleware.defaults :refer (wrap-defaults site-defaults)]
             [ring.util.response :as response]
             [environ.core :refer [env]]
-            [taoensso.carmine :as car :refer (wcar)]
-            [clojure.tools.logging :as log])
+            [clojure.tools.logging :as log]
+            [clj-leveldb :as leveldb]))
 
-  (:import [clojure.lang Murmur3]
-           [org.apache.commons.validator.routines UrlValidator]))
-
-(def redis-conn {:pool {} :spec {:host (env :redis-host)
-                                 :port (env :redis-port)}})
+(def ^:const DBDIR (env "dbname" "/tmp/shorty.db"))
 
 (defn valid-url?
   [url]
@@ -30,17 +29,24 @@
       (log/info (format "url: %s\thashed: %s" url out))
       out)))
 
+(defn dbconn []
+  (leveldb/create-db DBDIR {:key-decoder byte-streams/to-string 
+                            :val-decoder byte-streams/to-string}))
+
 (defn save-url [url]
   "Save URL, using the hash as the key, if it doesn't exist already.
   Returns the hash regardless of the existence, in Redis"
   (when-let [hash-code (hash-url url)]
-    (doall
-     (car/wcar redis-conn 
-               (car/setnx hash-code url))
-     hash-code)))
+    (let [db (dbconn)]
+      (leveldb/put db hash-code url)
+      (.close db))
+    hash-code))
+
 
 (defn find-hashed [hashcode]
-  (when-let [res (car/wcar redis-conn (car/get hashcode))]
+  (let [db (dbconn)
+        res (leveldb/get db hashcode)]
+    (.close db)
     res))
 
 (defroutes app-routes

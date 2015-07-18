@@ -8,8 +8,9 @@
                  [ring/ring-defaults "0.1.2"]
                  [commons-validator/commons-validator "1.4.1"]
                  [org.clojure/tools.logging "0.3.1"]
-                 [com.taoensso/carmine "2.9.2"]
-                 [environ "1.0.0"]]
+                 [environ "1.0.0"]
+                 [factual/clj-leveldb "0.1.1"]]
+
   :plugins [[lein-ring "0.8.13"]
             [lein-environ "1.0.0"]]
   :ring {:handler shorty.handler/app}
@@ -19,5 +20,4 @@
                         [midje "1.7.0-beta1"]
                         [criterium "0.4.3"]
                         [org.clojure/test.check "0.7.0"]]
-         :env {:redis-host "127.0.0.1"
-               :redis-port 6379}}})
+         :env {:dbname "/tmp/shorty.db"}}})
