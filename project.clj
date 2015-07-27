@@ -16,6 +16,7 @@
   :ring {:handler shorty.handler/app}
   :profiles
   {:dev {:dependencies [[javax.servlet/servlet-api "2.5"]
+                        ;; [midje "1.6.0" :exclusions [org.clojure/clojure]]
                         [ring-mock "0.1.5"]
                         [midje "1.7.0-beta1"]
                         [criterium "0.4.3"]

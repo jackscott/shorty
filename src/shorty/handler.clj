@@ -8,7 +8,8 @@
             [ring.util.response :as response]
             [environ.core :refer [env]]
             [clojure.tools.logging :as log]
-            [clj-leveldb :as leveldb]))
+            [clj-leveldb :as leveldb])
+  (:gen-class))
 
 (def ^:const DBDIR (env "dbname" "/tmp/shorty.db"))
 
@@ -29,7 +30,7 @@
       (log/info (format "url: %s\thashed: %s" url out))
       out)))
 
-(defn dbconn []
+(defn db-handle []
   (leveldb/create-db DBDIR {:key-decoder byte-streams/to-string 
                             :val-decoder byte-streams/to-string}))
 
@@ -37,14 +38,14 @@
   "Save URL, using the hash as the key, if it doesn't exist already.
   Returns the hash regardless of the existence, in Redis"
   (when-let [hash-code (hash-url url)]
-    (let [db (dbconn)]
+    (let [db (db-handle)]
       (leveldb/put db hash-code url)
       (.close db))
     hash-code))
 
 
 (defn find-hashed [hashcode]
-  (let [db (dbconn)
+  (let [db (db-handle)
         res (leveldb/get db hashcode)]
     (.close db)
     res))

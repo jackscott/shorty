@@ -8,14 +8,8 @@
 (let [response (app (mock/request :get "/"))]
   (fact "Testing main route"
     (:status response) => 200
-    (:body response) => (str "Hello World")))
+    (:body response) => (str "Hello World"))
 
-;; (deftest test-app
-;;   (testing "main route"
-;;     (let [response (app (mock/request :get "/"))]
-;;       (is (= (:status response) 200))
-;;       (is (= (:body response) "Hello World"))))
+  (fact "Testing hashing function"
+    (hash-url "http://www.example.com") => "cfce4929"  ))
 
-;;   (testing "not-found route"
-;;     (let [response (app (mock/request :get "/invalid"))]
-;;       (is (= (:status response) 404)))))
